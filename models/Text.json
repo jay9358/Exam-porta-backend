@@ -1,0 +1,16 @@
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "admin@example.com",
+    "mobileNumber": "1234567890",
+    "semester": null,
+    "batch": null,
+    "accountType": "Admin",
+    "otp": null,
+    "otpExpiry": null,
+    "token": null,
+    "image": null,
+    "school": null,
+    "leading": []
+  }
+  
