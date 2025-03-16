@@ -18,18 +18,24 @@ exports.registerStudents = async (req, res) => {
 	const { schoolId, Users } = req.body; // Expecting Users to be an array of user objects
 
 	// Validate schoolId and Users
+	if(Users.accountType=="Student" || Users.accountType=="Worker"){
 	if (!schoolId || typeof schoolId !== 'string' || !Array.isArray(Users) || Users.length === 0) {
 		return res.status(400).json({ message: "Invalid input: schoolId must be a string and Users are required" });
 	}
+	}
 
 	try {
+		const school = await School.findOne({ schoolId });
 		// Validate schoolId format
-		const school = await School.findOne({ schoolId }); // Assuming schoolId is a string in the School model
+		if(Users.accountType=="Student" || Users.accountType=="Worker"){
+		 // Assuming schoolId is a string in the School model
 		if (!school) {
 			return res.status(404).json({ message: "School not found" });
 		}
+		}
 
 		// Function to generate a random 4-digit number
+
 		const generateRandomRollNo = () => {
 			return Math.floor(1000 + Math.random() * 9000).toString(); // Generates a number between 1000 and 9999
 		};
@@ -41,7 +47,9 @@ exports.registerStudents = async (req, res) => {
 			email: user.email || null, // Optional, can be null
 			mobileNumber: user.mobileNumber || null, // Optional, can be null
 			accountType: user.accountType || "Student", // Use provided account type or default to "Student"
-			school: schoolId, // Associate with the school
+			school: schoolId,
+			State: user.State || null, // Associate with the school
+			City: user.City || null, // Associate with the school
 			rollNo: user.rollNo || generateRandomRollNo(), // Use provided rollNo or generate a random one
 			level: user.level || null, // Optional, can be null
 			batch: user.batch || null, // Optional, can be null
@@ -54,12 +62,13 @@ exports.registerStudents = async (req, res) => {
 		const userIds = insertedUsers.map((user) => user._id);
 
 		// Update the school with the new user IDs
+		if(Users.accountType=="Student" || Users.accountType=="Worker"){
 		await School.findByIdAndUpdate(
 			school._id,
 			{ $push: { students: { $each: userIds } } }, // Assuming you want to push user IDs to a students array in the School model
 			{ new: true }
 		);
-
+		}
 		res.status(201).json({ message: "Users registered successfully", users: insertedUsers });
 	} catch (error) {
 		console.error("Error adding users:", error.message); // Log the error message
@@ -149,32 +158,66 @@ exports.GetDashboard = async (req, res) => {
 }
 exports.GetPerformanceReports = async (req, res) => {
     try {
-        const { state, city, schoolId } = req.query;
-		console.log(state, city, schoolId);
-		const user = await User.find({schoolId:schoolId});
-		if(!user){
-			return res.status(404).json({
-				success: false,
-				message: "User not found"
-			});
-		}
-		console.log(user);
-		const result = await Result.find({userId:user._id});
-		console.log(result);
-		return res.status(200).json({
-			success: true,
-			message: "Performance reports fetched successfully",
-			data: {
-				user,
-				result
-			}
-		});
-	} catch (error) {
-		console.error("Error fetching performance reports:", error);
-		return res.status(500).json({
-			success: false,
-			message: "Error fetching performance reports",
-			error: error.message
-		});
-	}
+        const { state, city, schoolId, examId } = req.query;
+		console.log(state, city, schoolId, examId);
+        // Validate required parameters
+        if (!schoolId || !examId) {
+            return res.status(400).json({
+                success: false,
+                message: "School ID and Exam ID are required parameters"
+            });
+        }
+
+        // Validate and convert examId to ObjectId
+        if (!mongoose.Types.ObjectId.isValid(examId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Exam ID format"
+            });
+        }
+        const examObjectId = new mongoose.Types.ObjectId(examId);
+
+        // Find all students from the specified school
+        const users = await User.find({
+            schoolId: schoolId,
+            accountType: "Student"
+        }).select('firstName lastName rollNo batch level');
+		console.log(users);
+        if (!users || users.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No students found for the given criteria"
+            });
+        }
+
+        // Get user IDs
+        const userIds = users.map(user => user._id);
+		console.log(userIds);
+		console.log(examObjectId);
+		
+        // Find results for all students in the exam
+        const results = await Result.find({
+            student: { $in: userIds },
+            exam: examObjectId
+        });
+		console.log(results);
+
+        return res.status(200).json({
+            success: true,
+            message: "Performance reports fetched successfully",
+            data: {
+                users,
+                results,
+                totalStudents: users.length,
+                totalSubmissions: results.length
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching performance reports:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching performance reports",
+            error: error.message
+        });
+    }
 };

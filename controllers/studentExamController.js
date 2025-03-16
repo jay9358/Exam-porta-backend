@@ -213,6 +213,7 @@ exports.submitExam = async (req, res) => {
 				isCorrect,
 			};
 		});
+		const status = score >= question.length * 0.4 ? "Pass" : "Fail";
 
 		// Save result to database
 		const result = new Result({
@@ -220,6 +221,9 @@ exports.submitExam = async (req, res) => {
 			exam: examId,
 			score,
 			questionsAnswered,
+			status,
+
+
 		});
 		await result.save();
 
@@ -228,6 +232,7 @@ exports.submitExam = async (req, res) => {
 			message: "Exam submitted successfully",
 			score,
 			questionsAnswered,
+			status,
 		});
 	} catch (error) {
 		// Log and handle errors

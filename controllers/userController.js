@@ -157,6 +157,8 @@ exports.getUsersByRole = async (req, res) => {
 				image: user.image, // Added image
 				leading: user.leading,
 				place: place,
+				State: user.State,
+				City: user.City,
 				school: user.school,
 				schoolId: user.schoolId,
 				createdAt: user.createdAt, // Added createdAt

@@ -68,6 +68,14 @@ const userSchema = new mongoose.Schema(
 		schoolId: {
 			type: String,
 		},
+		State:{
+			type: String,
+			default: null,
+		},
+		City:{
+			type: String,
+			default: null,
+		},
 		leading: [{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "School",

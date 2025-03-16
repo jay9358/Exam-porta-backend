@@ -16,6 +16,10 @@ const resultSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		status: {
+			type: String,
+			required: true,
+		},
 		questionsAnswered: [
 			{
 				question: {
