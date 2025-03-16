@@ -7,8 +7,12 @@ const School = require("../models/School");
 const Exam = require("../models/Exam");
 const Result = require("../models/Result");
 const mongoose = require("mongoose");
-// Setup multer for file uploads
-const upload = multer({ dest: "uploads/" });
+
+// Use memory storage
+const storage = multer.memoryStorage();
+
+const upload = multer({ storage: storage });
+
 // Export both the middleware and the handler separately
 exports.registerStudents = async (req, res) => {
 	console.log("Reached here");
