@@ -5,7 +5,8 @@ const userRoutes = require("./routes/User");
 const adminRoutes = require("./routes/Admin");
 const examRoutes = require("./routes/Exam");
 const timeRoutes = require("./routes/timeRoutes");
-
+const statemanagerroutes = require("./routes/StateManager");
+const citymanagerroutes = require("./routes/CityManager");
 const { connectDB } = require("./config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -35,6 +36,9 @@ app.use("/v1/auth", userRoutes);
 app.use("/v1/admin", adminRoutes);
 app.use("/v1/exams", examRoutes);
 app.use("/v1/time", timeRoutes);
+app.use("/v1/statemanager",statemanagerroutes);
+app.use("/v1/citymanager",citymanagerroutes);
+
 app.get("/", (req, res) => {
 	return res.json({
 		success: true,

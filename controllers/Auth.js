@@ -86,9 +86,19 @@ exports.verifyOTPAndLogin = async (req, res) => {
 		if(flag=="Student"){
 			role="Student";
 		}
+		else if(flag=="Worker"){
+			role="Worker";
+		}
+		else if(flag=="StateManager"){
+			role="StateManager";
+		}
+		else if(flag=="CityManager"){
+			role="CityManager";
+		}
 		else{
             role="Admin";
         }
+		console.log(role);
 		const isNumeric = /^\d+$/.test(contact); // Checks if the contact is only digits
 		const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact); // Basic check for email structure
 		let user;

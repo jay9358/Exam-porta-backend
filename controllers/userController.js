@@ -52,6 +52,33 @@ exports.assignRole = async (req, res) => {
 			.json({ message: "Error creating user and assigning role", error });
 	}
 };
+exports.getUserById = async (req, res) => {
+	try {
+		console.log("Reaching getUserById");
+		const { userId } = req.params;
+
+		// Validate userId format
+		if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+			return res.status(400).json({ message: "Invalid user ID format" });
+		}
+
+		const user = await User.findById(userId);
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		res.status(200).json({
+			message: "User found",
+			user,
+		});
+	} catch (error) {
+		console.error("Error fetching user:", error);
+		res.status(500).json({ 
+			message: "Error fetching user",
+			error: error.message 
+		});
+	}
+};
 
 // Update a user's role and adjust leading schools based on city or state
 exports.updateRole = async (req, res) => {

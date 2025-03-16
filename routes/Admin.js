@@ -10,6 +10,8 @@ const studentMiddleware = require("../middlewares/studentMiddleware");
 const { csvUpload } = require('../controllers/helperController');
 const multer = require('multer');
 const { GetPerformanceReports } = require("../controllers/Admin");
+const stateMiddleware = require("../middlewares/stateManagerMiddleware");
+const cityMiddleware = require("../middlewares/cityManagerMiddleware");
 // Create a new question set
 router.post(
 	"/questionSets",
@@ -182,5 +184,19 @@ router.get(
 	authMiddleware,
 	adminMiddleware,
 	GetPerformanceReports
+);
+
+router.get(
+	"/user/:userId",
+	authMiddleware,
+
+	stateMiddleware,
+	userController.getUserById
+);
+router.get(
+	"/users/:userId",
+	authMiddleware,
+	cityMiddleware,
+	userController.getUserById
 );
 module.exports = router;
