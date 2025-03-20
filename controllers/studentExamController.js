@@ -50,12 +50,19 @@ exports.startExam = async (req, res) => {
 
 		// Fetch all questions from all question sets
 		let allQuestions = [];
+		let questionSets = [];
 		for (const questionSetId of exam.questionSets) {
-			const questionSet = await QuestionSet.findById(questionSetId).populate("questions");
-			allQuestions = allQuestions.concat(questionSet.questions);
+			const 	questionSet = await QuestionSet.findById(questionSetId).populate("questions");
+			questionSets.push(questionSet);
 		
 		}
-		
+		console.log(questionSets);
+		// Get a random set from the questionSets
+		const randomIndex = Math.floor(Math.random() * questionSets.length);
+		const randomQuestionSet = questionSets[randomIndex];
+		console.log(randomQuestionSet);
+		allQuestions = randomQuestionSet.questions;
+		console.log(allQuestions);
 		const totalQuestions = exam.totalQuestions;
 		
 		// Validate if we have enough questions
@@ -102,15 +109,12 @@ exports.startExam = async (req, res) => {
 
 // View all exams
 exports.getAllExamsStud = async (req, res) => {
-	let { semester } = req.body;
-	if (semester){
-		if (![1, 2, 3, 4, 5, 6, 7, 8].includes(semester)) {
-			console.log(semester, typeof(semester), typeof(1));
-			return res.status(400).json({ message: "Semester information is missing" });
-		}
-	}
+	console.log("Getting all exams for student");
+
+	const { level } = req.body;
+	console.log(level);
 	try {
-		const exams = await Exam.find({ forSemester: semester })
+		const exams = await Exam.find({ level: level })
 			.populate("questionSets")
 			.populate("assignedToSchools")
 			.populate("createdBy", "firstName lastName"); // Populating createdBy to see which admin created the exam

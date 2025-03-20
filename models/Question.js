@@ -12,6 +12,14 @@ const questionSchema = new mongoose.Schema(
 				isCorrect: { type: Boolean, default: false }, // Whether this option is correct
 			},
 		],
+		chapter: {
+			type: String,
+			required: true,
+		},
+		difficulty: {
+			type: String,
+			required: true,
+		},
 	},
 	{
 		timestamps: true,

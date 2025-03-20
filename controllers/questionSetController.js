@@ -3,10 +3,21 @@ const Question = require("../models/Question");
 
 // Create a new question set
 exports.createQuestionSet = async (req, res) => {
-	const { setName } = req.body;
+	console.log(req.body);
+	let Level=0;
+	const { setName,level } = req.body;
+	if(level == "easy"){
+		Level = 1;
+	}else if(level == "medium"){
+		Level = 2;
+	}else if(level == "hard"){
+		Level = 3;
+	}
+
 	try {
 		const questionSet = new QuestionSet({
 			setName: setName,
+			level: Level,
 			createdBy: req.user._id, // Assuming req.user is the authenticated admin
 		});
 		await questionSet.save();
@@ -19,10 +30,10 @@ exports.createQuestionSet = async (req, res) => {
 };
 // Add a question to a question set
 exports.addQuestionToSet = async (req, res) => {
-	const { questionText, options, setId } = req.body;
+	const { questionText,chapter, options,difficulty, setId } = req.body;
 	try {
 		// Create a new question
-		const question = new Question({ questionText, options });
+		const question = new Question({ questionText, chapter, options,difficulty });
 		await question.save();
 		// Add question to the question set
 		await QuestionSet.findByIdAndUpdate(setId, {

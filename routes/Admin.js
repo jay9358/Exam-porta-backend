@@ -9,7 +9,7 @@ const { CheckAdminFromFrontend, CheckStudentFromFrontend ,GetDashboard} = requir
 const studentMiddleware = require("../middlewares/studentMiddleware");
 const { csvUpload } = require('../controllers/helperController');
 const multer = require('multer');
-const { GetPerformanceReports } = require("../controllers/Admin");
+const { GetPerformanceReports, GetAllResults, GetWeightage } = require("../controllers/Admin");
 const stateMiddleware = require("../middlewares/stateManagerMiddleware");
 const cityMiddleware = require("../middlewares/cityManagerMiddleware");
 // Create a new question set
@@ -186,6 +186,7 @@ router.get(
 	GetPerformanceReports
 );
 
+
 router.get(
 	"/user/:userId",
 	authMiddleware,
@@ -198,5 +199,17 @@ router.get(
 	authMiddleware,
 	cityMiddleware,
 	userController.getUserById
+);
+router.get(
+	"/results",
+	authMiddleware,
+	adminMiddleware,
+	GetAllResults
+);
+router.get(
+	"/questionSets/:questionSetId/weightage",
+	authMiddleware,
+	adminMiddleware,
+	GetWeightage
 );
 module.exports = router;

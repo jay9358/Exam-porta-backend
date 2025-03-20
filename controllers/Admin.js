@@ -7,7 +7,8 @@ const School = require("../models/School");
 const Exam = require("../models/Exam");
 const Result = require("../models/Result");
 const mongoose = require("mongoose");
-
+const QuestionSet = require("../models/QuestionSet");
+const Question = require("../models/Question");
 // Use memory storage
 const storage = multer.memoryStorage();
 
@@ -225,3 +226,33 @@ exports.GetPerformanceReports = async (req, res) => {
         });
     }
 };
+exports.GetAllResults = async (req, res) => {
+	console.log("Reached here");
+	try {
+		const results = await Result.find();
+		return res.status(200).json({ results });
+	} catch (error) {
+		return res.status(500).json({ error: error.message });
+	}
+}
+
+exports.GetWeightage = async (req, res) => {
+	const { questionSetId } = req.params;
+	const questionSet = await QuestionSet.findById(questionSetId);
+	const questions = questionSet.questions;
+	console.log(questions);
+	
+	const questionData = await Question.find({ _id: { $in: questions } });
+	console.log(questionData);
+	const chapters = questionData.map(question => question.chapter);
+	const difficulty = questionData.map(question => question.difficulty);
+	console.log(chapters);
+	console.log(difficulty);
+	return res.status(200).json({ chapters, difficulty });
+}
+exports.GetUsersByLevel = async (req, res) => {
+	const { level } = req.params;
+	const users = await User.find({ level });
+	return res.status(200).json({ users });
+}
+

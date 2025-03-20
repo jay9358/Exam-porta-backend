@@ -8,7 +8,7 @@ const workerMiddleware = require("../middlewares/workerMiddleware");
 const studentExamController = require("../controllers/studentExamController");
 const studentMiddleware = require("../middlewares/studentMiddleware");
 const monitoringController = require("../controllers/examMonitoring");
-
+const examController = require("../controllers/examController");
 // Live Monitoring of Exams
 router.get(
 	"/liveMonitor/:role/:userId/:schoolId?",
@@ -100,4 +100,7 @@ router.get(
 	studentExamController.liveMonitorExam
 );
 
+router.post("/:examId/session", authMiddleware, examController.postSession);
+router.delete("/:sessionId/sessionDelete", authMiddleware, examController.deleteSession);
+router.get("/getAllSessions", authMiddleware, examController.getAllSessions);
 module.exports = router;

@@ -1,0 +1,38 @@
+[
+    {
+      "firstName": "Gautham",
+      "lastName": "Seervi",
+      "email": "gautham.seervi@beiguru.com",
+      "accountType": "Admin",
+      "rollNo": "G12345"
+    },
+    {
+      "firstName": "Rohit",
+      "lastName": "",
+      "email": "Rohit@beiguru.com",
+      "accountType": "Admin",
+      "rollNo": "R12345"
+    },
+    {
+      "firstName": "Shrestha",
+      "lastName": "Singh",
+      "email": "shrestha.singh@beiguru.com",
+      "accountType": "Admin",
+      "rollNo": "S12345"
+    },
+    {
+      "firstName": "Niketh",
+      "lastName": "MS",
+      "email": "nikethms@beiguru.com",
+      "accountType": "Admin",
+      "rollNo": "N12345"
+    },
+    {
+      "firstName": "Piyush",
+      "lastName": "Bhardwaj",
+      "email": "bhardwajpiyush523@gmail.com",
+      "accountType": "Admin",
+      "rollNo": "P12345"
+    }
+  ]
+  

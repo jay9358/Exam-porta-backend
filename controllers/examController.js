@@ -1,6 +1,7 @@
 const Exam = require("../models/Exam");
 const QuestionSet = require("../models/QuestionSet");
 const School = require("../models/School");
+const Session = require("../models/Sessions");
 // Create a new exam
 exports.createExam = async (req, res) => {
 	console.log(req.body);
@@ -126,3 +127,32 @@ exports.deleteExam = async (req, res) => {
 		res.status(500).json({ message: "Error deleting exam", error });
 	}
 };
+
+exports.postSession = async (req, res) => {
+	const { examId } = req.params;
+	const { sessionId } = req.body;
+	console.log("REACHED");
+	const session = await Session.findOne({ sessionId });
+	if (session) {
+		return res.status(200).json({ message: "Session already exists" });
+	}
+	const newSession = new Session({
+		sessionId,
+		examId,
+		
+	});
+	await newSession.save();
+	res.status(200).json({ message: "Session created successfully", newSession });
+}
+exports.deleteSession = async (req, res) => {
+	const { sessionId } = req.params;
+	const session = await Session.findOneAndDelete({ sessionId });
+	if (!session) {
+		return res.status(404).json({ message: "Session not found" });
+	}
+	res.status(200).json({ message: "Session deleted successfully", session });
+}
+exports.getAllSessions = async (req, res) => {
+	const sessions = await Session.find();
+	res.status(200).json({ sessions });
+}

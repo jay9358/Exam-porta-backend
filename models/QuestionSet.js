@@ -17,6 +17,12 @@ const questionSetSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User", // Usually an Admin
 		},
+		level: {
+			type: Number,
+			min: 0,
+			max: 4,
+			required: true,
+		},
 	},
 	{
 		timestamps: true,
