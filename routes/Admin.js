@@ -42,7 +42,7 @@ router.delete(
 	adminMiddleware,
 	questionSetController.deleteQuestion
 );
-router.get("/exams/:examId/questions",authMiddleware,adminMiddleware,examController.getQuestionsByExamId);
+router.get("/exams/:setId/questions",authMiddleware,adminMiddleware,examController.getQuestionsByExamId);
 // View all question sets
 router.get(
 	"/questionSets",

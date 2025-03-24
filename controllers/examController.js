@@ -46,21 +46,30 @@ exports.createExam = async (req, res) => {
 		});
 
 		await exam.save();
-		const selectedQuestions=await GenerateQuestionSets(exam);
-		if(selectedQuestions.length===0){
+		const selectedQuestionSets = await GenerateQuestionSets(exam);
+		if (!selectedQuestionSets || selectedQuestionSets.length === 0) {
 			return res.status(400).json({ message: "No questions found" });
 		}
-		console.log(selectedQuestions);
 
-		const questionSet=new QuestionSet({
-			setName:exam.title,
-			questions:selectedQuestions,
-			exam:exam._id,
-			weightage:questionSetWeightsMap,
-			type:"Exam Set",
+		// Create multiple question sets
+		const examSets = [];
+		for (let i = 0; i < selectedQuestionSets.length; i++) {
+			const questionSet = new QuestionSet({
+				setName: `${exam.title} - Set ${i + 1}`,
+				questions: selectedQuestionSets[i],
+				exam: exam._id,
+				weightage: questionSetWeightsMap,
+				type: "Exam Set",
+			});
+			await questionSet.save();
+			examSets.push(questionSet);
+		}
+
+		res.status(201).json({ 
+			message: "Exam created successfully with multiple sets", 
+			exam,
+			examSets 
 		});
-		await questionSet.save();
-		res.status(201).json({ message: "Exam created successfully", exam });
 	} catch (error) {
 		console.error("Error creating exam:", error);
 		res.status(500).json({ message: "Error creating exam", error: error.message });
@@ -181,12 +190,9 @@ exports.getAllSessions = async (req, res) => {
 }
 exports.getQuestionsByExamId = async (req, res) => {
 	console.log("REACHED");
-	const { examId } = req.params;
-	const exam = await Exam.findById(examId);
-	if (!exam) {
-		return res.status(404).json({ message: "Exam not found" });
-	}
-	const questionSets = await QuestionSet.find({ exam: examId });
+	const { setId } = req.params;
+	console.log(setId)
+	const questionSets = await QuestionSet.find({ _id: setId });
 	console.log(questionSets);
 	
 	const questions = [];
@@ -210,3 +216,24 @@ exports.getQuestionsByQuestionSetId = async (req, res) => {
 	
 	res.status(200).json({ questionSet });
 }
+
+exports.getQuestionsetbyexamId=async(req,res)=>{
+	const {examId}=req.params;
+	const mongoose = require('mongoose');
+	const objectId = new mongoose.Types.ObjectId(examId);
+	const questionSets = await QuestionSet.find({ _id: objectId });
+	
+	res.status(200).json({ questionSets });
+
+}
+exports.getQuestionbytype = async (req, res) => {
+	console.log("REACHED Question Set Type");
+	const { type } = req.params;
+	try {
+		const questionSets = await QuestionSet.find({ type: type });
+		res.status(200).json({ questionSets });
+	} catch (error) {
+		console.error("Error fetching question sets by type:", error);
+		res.status(500).json({ message: "Error fetching question sets by type", error: error.message });
+	}
+};

@@ -99,8 +99,15 @@ router.get(
 	adminMiddleware,
 	studentExamController.liveMonitorExam
 );
-
+router.get(
+	"/:examId/questionsets",
+	authMiddleware,
+	adminMiddleware,
+	examController.getQuestionsetbyexamId	
+)
 router.post("/:examId/session", authMiddleware, examController.postSession);
 router.delete("/:sessionId/sessionDelete", authMiddleware, examController.deleteSession);
 router.get("/getAllSessions", authMiddleware, examController.getAllSessions);
+
+router.get("/questionsets/:type",authMiddleware,adminMiddleware,examController.getQuestionbytype)
 module.exports = router;
