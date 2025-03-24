@@ -255,4 +255,9 @@ exports.GetUsersByLevel = async (req, res) => {
 	const users = await User.find({ level });
 	return res.status(200).json({ users });
 }
+exports.GetBatches = async (req, res) => {
+	console.log("Reached here");
+	const batches = await User.distinct('batch');
+	return res.status(200).json({ batches });
+}
 

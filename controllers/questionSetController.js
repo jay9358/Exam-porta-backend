@@ -4,22 +4,17 @@ const Question = require("../models/Question");
 // Create a new question set
 exports.createQuestionSet = async (req, res) => {
 	console.log(req.body);
-	let Level=0;
-	const { setName,level } = req.body;
-	if(level == "easy"){
-		Level = 1;
-	}else if(level == "medium"){
-		Level = 2;
-	}else if(level == "hard"){
-		Level = 3;
-	}
+	
+	const { setName , type} = req.body;
+
 
 	try {
 		const questionSet = new QuestionSet({
 			setName: setName,
-			level: Level,
+			type: type,
 			createdBy: req.user._id, // Assuming req.user is the authenticated admin
 		});
+		console.log(questionSet);
 		await questionSet.save();
 		res
 			.status(201)
@@ -30,8 +25,12 @@ exports.createQuestionSet = async (req, res) => {
 };
 // Add a question to a question set
 exports.addQuestionToSet = async (req, res) => {
+	console.log(req.body);
 	const { questionText,chapter, options,difficulty, setId } = req.body;
 	try {
+		if(!questionText || !chapter || !options || !difficulty || !setId){
+			return res.status(400).json({ message: "Check The Format" });
+		}
 		// Create a new question
 		const question = new Question({ questionText, chapter, options,difficulty });
 		await question.save();

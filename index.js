@@ -27,7 +27,7 @@ app.use(
 		credentials: true,
 		allowedHeaders: ["Authorization", "Content-Type"],
 		methods: ["GET", "POST", "PUT", "DELETE"], // Ensure you're allowing all methods you use
-	})
+	})	
 );
 
 

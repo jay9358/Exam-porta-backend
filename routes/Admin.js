@@ -9,7 +9,7 @@ const { CheckAdminFromFrontend, CheckStudentFromFrontend ,GetDashboard} = requir
 const studentMiddleware = require("../middlewares/studentMiddleware");
 const { csvUpload } = require('../controllers/helperController');
 const multer = require('multer');
-const { GetPerformanceReports, GetAllResults, GetWeightage } = require("../controllers/Admin");
+const { GetPerformanceReports, GetAllResults, GetWeightage, GetBatches } = require("../controllers/Admin");
 const stateMiddleware = require("../middlewares/stateManagerMiddleware");
 const cityMiddleware = require("../middlewares/cityManagerMiddleware");
 // Create a new question set
@@ -42,7 +42,7 @@ router.delete(
 	adminMiddleware,
 	questionSetController.deleteQuestion
 );
-
+router.get("/exams/:examId/questions",authMiddleware,adminMiddleware,examController.getQuestionsByExamId);
 // View all question sets
 router.get(
 	"/questionSets",
@@ -212,4 +212,19 @@ router.get(
 	adminMiddleware,
 	GetWeightage
 );
+
+router.get(
+	"/batches",
+	authMiddleware,
+	adminMiddleware,
+	GetBatches
+);
+
+router.get(
+	"/questionSets/:questionSetId",
+	authMiddleware,
+	adminMiddleware,
+	examController.getQuestionsByQuestionSetId
+);
+
 module.exports = router;

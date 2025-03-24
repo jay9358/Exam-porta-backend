@@ -186,6 +186,7 @@ exports.getUsersByRole = async (req, res) => {
 				place: place,
 				State: user.State,
 				City: user.City,
+				batch: user.batch,
 				school: user.school,
 				schoolId: user.schoolId,
 				createdAt: user.createdAt, // Added createdAt
@@ -242,11 +243,7 @@ exports.registerStudents = async (req, res) => {
 		});
 
 		// Function to generate a random mobile number
-		const generateRandomMobileNumber = () => {
-			const prefix = '07';
-			const number = Math.floor(100000000 + Math.random() * 900000000);
-			return prefix + number;
-		};
+
 
 		// Process each row and create users
 		for (const row of results) {
@@ -262,9 +259,10 @@ exports.registerStudents = async (req, res) => {
 				const lastName = trimmedRow['lastName'] || trimmedRow['last Name'] || trimmedRow['LastName'];
 				const school = trimmedRow['School'] || trimmedRow['school'];
 				const schoolId = trimmedRow['SchoolID'] || trimmedRow['schoolId'] || trimmedRow['schoolID'];
-				
+				const mobileNumber = trimmedRow['Mobile Number'] || trimmedRow['mobileNumber'] || trimmedRow['Mobile Number'];
+				const batchID = trimmedRow['BatchID'] || trimmedRow['batchID'] || trimmedRow['BatchID'];
 				// Validate required fields
-				if (!rollNo || !firstName || !lastName || !trimmedRow.email || !trimmedRow.level || !school || !schoolId) {
+				if (!rollNo || !firstName || !lastName || !trimmedRow.email || !trimmedRow.level || !school || !schoolId || !mobileNumber) {
 					errors.push({
 						row: trimmedRow,
 						error: `Missing required fields: ${!rollNo ? 'RollNo, ' : ''}${!firstName ? 'firstName, ' : ''}${!lastName ? 'lastName, ' : ''}${!trimmedRow.email ? 'email, ' : ''}${!trimmedRow.level ? 'level, ' : ''}${!school ? 'School, ' : ''}${!schoolId ? 'SchoolID' : ''}`
@@ -301,7 +299,7 @@ exports.registerStudents = async (req, res) => {
 				}
 
 				// Generate a random mobile number
-				const mobileNumber = generateRandomMobileNumber();
+				
 
 				// Create new user with school information
 				const newUser = new User({
@@ -310,6 +308,7 @@ exports.registerStudents = async (req, res) => {
 					email: trimmedRow.email,
 					rollNo: rollNo,
 					mobileNumber,
+					batch: batchID,
 					accountType: "Student",
 					level: parseInt(trimmedRow.level) || 1,
 					school: school,

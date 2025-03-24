@@ -15,8 +15,10 @@ const userSchema = new mongoose.Schema(
 		email: {
 			type: String,
 			trim: true,
+			
 			unique: true,
-			// required: true,
+
+			required: true,
 			// sparse: true,
 		},
 		rollNo: {
@@ -26,7 +28,7 @@ const userSchema = new mongoose.Schema(
 		},
 		mobileNumber: {
 			type: String,
-			
+			required: true,
 			// required: true,
 			// sparse: true,
 		},

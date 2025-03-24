@@ -19,6 +19,18 @@ const examSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		ApprovalStatus: {
+			type: String,
+			required: true,
+		},
+		batch: {
+			type: String,
+			required: true,
+		},
+		approvedBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
 		questionSets: [
 			{
 				type: mongoose.Schema.Types.ObjectId,
@@ -26,6 +38,11 @@ const examSchema = new mongoose.Schema(
 				required: true,
 			},
 		],
+		questionSetWeights: {
+			type: Map,
+			of: String,
+			required: true,
+		},
 		assignedToSchools: [
 			{
 				type: mongoose.Schema.Types.ObjectId,

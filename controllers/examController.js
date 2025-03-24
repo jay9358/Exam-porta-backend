@@ -2,16 +2,19 @@ const Exam = require("../models/Exam");
 const QuestionSet = require("../models/QuestionSet");
 const School = require("../models/School");
 const Session = require("../models/Sessions");
+const {GenerateQuestionSets} = require("./helperController");
+const Question = require("../models/Question");
 // Create a new exam
 exports.createExam = async (req, res) => {
-	console.log(req.body);
 	
-	const { title, description, timeLimit, questionSets, level, Status,totalQuestions, date, startTime } = req.body;
-
+	
+	const { title, description, timeLimit, questionSets, level, Status,totalQuestions, date, startTime, batch,questionSetWeights } = req.body;
+	
 	// Validate required fields
-	if (!title || !description || !timeLimit || !questionSets || !level || !Status || !date ||!totalQuestions|| !startTime) {
+	if (!title || !description || !timeLimit || !questionSets || !level || !Status || !date ||!totalQuestions|| !startTime|| !batch || !questionSetWeights) {
 		return res.status(400).json({ message: "All fields are required" });
 	}
+	const ApprovalStatus="Pending";
 
 	try {
 		// Ensure the question sets exist
@@ -22,6 +25,9 @@ exports.createExam = async (req, res) => {
 		if (validQuestionSets.length !== questionSets.length) {
 			return res.status(400).json({ message: "Invalid question sets" });
 		}
+
+		// Convert questionSetWeights to a Map
+		const questionSetWeightsMap = new Map(Object.entries(questionSetWeights));
 
 		const exam = new Exam({
 			title,
@@ -34,9 +40,26 @@ exports.createExam = async (req, res) => {
 			date: new Date(date), // Convert to Date object
 			startTime,
 			createdBy: req.user._id,
+			batch,
+			ApprovalStatus,
+			questionSetWeights: questionSetWeightsMap,
 		});
 
 		await exam.save();
+		const selectedQuestions=await GenerateQuestionSets(exam);
+		if(selectedQuestions.length===0){
+			return res.status(400).json({ message: "No questions found" });
+		}
+		console.log(selectedQuestions);
+
+		const questionSet=new QuestionSet({
+			setName:exam.title,
+			questions:selectedQuestions,
+			exam:exam._id,
+			weightage:questionSetWeightsMap,
+			type:"Exam Set",
+		});
+		await questionSet.save();
 		res.status(201).json({ message: "Exam created successfully", exam });
 	} catch (error) {
 		console.error("Error creating exam:", error);
@@ -155,4 +178,35 @@ exports.deleteSession = async (req, res) => {
 exports.getAllSessions = async (req, res) => {
 	const sessions = await Session.find();
 	res.status(200).json({ sessions });
+}
+exports.getQuestionsByExamId = async (req, res) => {
+	console.log("REACHED");
+	const { examId } = req.params;
+	const exam = await Exam.findById(examId);
+	if (!exam) {
+		return res.status(404).json({ message: "Exam not found" });
+	}
+	const questionSets = await QuestionSet.find({ exam: examId });
+	console.log(questionSets);
+	
+	const questions = [];
+	for (const questionSet of questionSets) {
+		
+		const question = await Question.find({ _id: { $in: questionSet.questions } });
+		console.log(question);
+		questions.push(...question);
+	}
+	console.log(questions);
+	res.status(200).json({ questions });
+}
+
+exports.getQuestionsByQuestionSetId = async (req, res) => {
+	console.log("REACHED Question Set Id");
+	const { questionSetId } = req.params;
+	const questionSet = await QuestionSet.findById(questionSetId);
+	if (!questionSet) {
+		return res.status(404).json({ message: "Question set not found" });
+	}
+	
+	res.status(200).json({ questionSet });
 }
