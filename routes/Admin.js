@@ -132,12 +132,14 @@ router.get(
     studentMiddleware,
 	CheckStudentFromFrontend
 )
+
 router.delete(
 	"/users/deleteAll",
 	authMiddleware,
 	adminMiddleware,
 	userController.deleteAllUsers
 )
+
 
 // Error handling middleware for multer errors
 const handleMulterError = (error, req, res, next) => {
@@ -190,8 +192,6 @@ router.get(
 router.get(
 	"/user/:userId",
 	authMiddleware,
-
-	stateMiddleware,
 	userController.getUserById
 );
 router.get(
@@ -226,5 +226,12 @@ router.get(
 	adminMiddleware,
 	examController.getQuestionsByQuestionSetId
 );
+
+router.post(
+	"/exams/:id/approve",
+	authMiddleware,
+	adminMiddleware,
+	examController.ApproveExam
+)
 
 module.exports = router;

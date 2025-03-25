@@ -50,12 +50,9 @@ exports.startExam = async (req, res) => {
 
 		// Fetch all questions from all question sets
 		let allQuestions = [];
-		let questionSets = [];
-		for (const questionSetId of exam.questionSets) {
-			const 	questionSet = await QuestionSet.findById(questionSetId).populate("questions");
-			questionSets.push(questionSet);
+		let questionSets = await QuestionSet.find({exam:examId}).populate('questions');
+
 		
-		}
 		console.log(questionSets);
 		// Get a random set from the questionSets
 		const randomIndex = Math.floor(Math.random() * questionSets.length);
@@ -66,7 +63,7 @@ exports.startExam = async (req, res) => {
 		const totalQuestions = exam.totalQuestions;
 		
 		// Validate if we have enough questions
-		if (allQuestions.length < totalQuestions) {
+		if (allQuestions.length < totalQuestions - 1 || allQuestions.length > totalQuestions + 1) {
 			return res.status(400).json({ 
 				message: `Not enough questions available. Required: ${totalQuestions}, Available: ${allQuestions.length}` 
 			});
@@ -79,7 +76,9 @@ exports.startExam = async (req, res) => {
 			[shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
 		}
 		
-		const selectedQuestions = shuffledQuestions.slice(0, totalQuestions);
+		const selectedQuestions = allQuestions.length >= totalQuestions ? 
+			shuffledQuestions.slice(0, totalQuestions) : 
+			shuffledQuestions.slice(0, totalQuestions - 1);
 		console.log(selectedQuestions.length);
 		
 		// Start exam with predefined time limit

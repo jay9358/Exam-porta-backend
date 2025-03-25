@@ -237,3 +237,21 @@ exports.getQuestionbytype = async (req, res) => {
 		res.status(500).json({ message: "Error fetching question sets by type", error: error.message });
 	}
 };
+
+exports.ApproveExam = async (req, res) => {
+	const { id } = req.params;
+	try {
+		const exam = await Exam.findById(id);
+		if (!exam) {
+			return res.status(404).json({ message: "Exam not found" });
+		}
+
+		exam.ApprovalStatus = "Approved";
+		await exam.save();
+
+		res.status(200).json({ message: "Exam approved successfully", exam });
+	} catch (error) {
+		console.error("Error approving exam:", error);
+		res.status(500).json({ message: "Error approving exam", error: error.message });
+	}
+};
