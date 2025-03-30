@@ -29,15 +29,28 @@ exports.createExam = async (req, res) => {
 		// Convert questionSetWeights to a Map
 		const questionSetWeightsMap = new Map(Object.entries(questionSetWeights));
 
+		// First try to generate question sets before creating the exam
+		const tempExam = {
+			questionSets,
+			totalQuestions,
+			questionSetWeights: questionSetWeightsMap
+		};
+		
+		const selectedQuestionSets = await GenerateQuestionSets(tempExam);
+		if (!selectedQuestionSets || selectedQuestionSets.length === 0) {
+			return res.status(400).json({ message: "No questions found" });
+		}
+
+		// Only create the exam if question sets were generated successfully
 		const exam = new Exam({
 			title,
 			description,
-			timeLimit: Number(timeLimit), // Convert to number in case it's sent as string
+			timeLimit: Number(timeLimit),
 			questionSets,
-			level: Number(level), // Convert to number in case it's sent as string
+			level: Number(level),
 			Status,
 			totalQuestions,
-			date: new Date(date), // Convert to Date object
+			date: new Date(date),
 			startTime,
 			createdBy: req.user._id,
 			batch,
@@ -46,10 +59,6 @@ exports.createExam = async (req, res) => {
 		});
 
 		await exam.save();
-		const selectedQuestionSets = await GenerateQuestionSets(exam);
-		if (!selectedQuestionSets || selectedQuestionSets.length === 0) {
-			return res.status(400).json({ message: "No questions found" });
-		}
 
 		// Create multiple question sets
 		const examSets = [];
@@ -240,15 +249,16 @@ exports.getQuestionbytype = async (req, res) => {
 
 exports.ApproveExam = async (req, res) => {
 	const { id } = req.params;
+	const {userId}=req.params
 	try {
 		const exam = await Exam.findById(id);
 		if (!exam) {
 			return res.status(404).json({ message: "Exam not found" });
 		}
-
+		const User = await User.findById(userId);
 		exam.ApprovalStatus = "Approved";
 		await exam.save();
-
+		exam.approvedBy = User.firstName + " " + User.lastName;	
 		res.status(200).json({ message: "Exam approved successfully", exam });
 	} catch (error) {
 		console.error("Error approving exam:", error);

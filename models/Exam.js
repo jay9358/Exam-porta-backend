@@ -23,6 +23,12 @@ const examSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		approvedBy:{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User", // Usually an Admin who created the exam
+			required: true,
+
+		},
 		batch: {
 			type: String,
 			required: true,

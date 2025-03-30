@@ -228,7 +228,7 @@ router.get(
 );
 
 router.post(
-	"/exams/:id/approve",
+	"/exams/:id/approve/:userId",
 	authMiddleware,
 	adminMiddleware,
 	examController.ApproveExam
