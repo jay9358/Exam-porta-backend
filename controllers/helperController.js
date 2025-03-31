@@ -66,13 +66,17 @@ async function GenerateQuestionSets(exam) {
 
         for (let i = 0; i < questionSets.length; i++) {
             const questionSet = questionSets[i];
+
             const weightage = parseInt(questionSetWeights.get(questionSet._id.toString()), 10);
+           
             const numberOfQuestions = Math.ceil(totalQuestions * (weightage / 100));
 
             const levelQuestions = [];
             for (let j = 0; j < allQuestions.length; j++) {
                 const question = allQuestions[j];
+                console.log(exam.level)
                 if (questionSet.questions.includes(question._id) && question.difficulty === exam.level.toString()) {
+                    console.log(weightage)
                     levelQuestions.push(question);
                 }
             }

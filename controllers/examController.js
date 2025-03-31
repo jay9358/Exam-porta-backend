@@ -4,6 +4,7 @@ const School = require("../models/School");
 const Session = require("../models/Sessions");
 const {GenerateQuestionSets} = require("./helperController");
 const Question = require("../models/Question");
+const User=require("../models/User")
 // Create a new exam
 exports.createExam = async (req, res) => {
 	
@@ -15,7 +16,7 @@ exports.createExam = async (req, res) => {
 		return res.status(400).json({ message: "All fields are required" });
 	}
 	const ApprovalStatus="Pending";
-
+	
 	try {
 		// Ensure the question sets exist
 		const validQuestionSets = await QuestionSet.find({
@@ -33,14 +34,15 @@ exports.createExam = async (req, res) => {
 		const tempExam = {
 			questionSets,
 			totalQuestions,
-			questionSetWeights: questionSetWeightsMap
+			questionSetWeights: questionSetWeightsMap,
+			level
 		};
+		console.log(level)
 		
 		const selectedQuestionSets = await GenerateQuestionSets(tempExam);
 		if (!selectedQuestionSets || selectedQuestionSets.length === 0) {
 			return res.status(400).json({ message: "No questions found" });
 		}
-
 		// Only create the exam if question sets were generated successfully
 		const exam = new Exam({
 			title,
@@ -57,9 +59,10 @@ exports.createExam = async (req, res) => {
 			ApprovalStatus,
 			questionSetWeights: questionSetWeightsMap,
 		});
+		console.log(exam.level)
 
 		await exam.save();
-
+		
 		// Create multiple question sets
 		const examSets = [];
 		for (let i = 0; i < selectedQuestionSets.length; i++) {
@@ -249,19 +252,36 @@ exports.getQuestionbytype = async (req, res) => {
 
 exports.ApproveExam = async (req, res) => {
 	const { id } = req.params;
-	const {userId}=req.params
+	const { userId } = req.body;
 	try {
 		const exam = await Exam.findById(id);
 		if (!exam) {
 			return res.status(404).json({ message: "Exam not found" });
 		}
-		const User = await User.findById(userId);
+
+		const user = await User.findById(userId);
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
 		exam.ApprovalStatus = "Approved";
+		exam.approvedBy = userId;
+		exam.approvedByName = `${user.firstName} ${user.lastName}`;
+		
 		await exam.save();
-		exam.approvedBy = User.firstName + " " + User.lastName;	
-		res.status(200).json({ message: "Exam approved successfully", exam });
+
+		// Populate the approvedBy field when sending response
+		await exam.populate('approvedBy', 'firstName lastName');
+
+		res.status(200).json({ 
+			message: "Exam approved successfully", 
+			exam 
+		});
 	} catch (error) {
 		console.error("Error approving exam:", error);
-		res.status(500).json({ message: "Error approving exam", error: error.message });
+		res.status(500).json({ 
+			message: "Error approving exam", 
+			error: error.message 
+		});
 	}
 };

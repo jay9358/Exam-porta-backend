@@ -21,10 +21,15 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			// sparse: true,
 		},
+
 		rollNo: {
 			type: String,
 			trim: true,
 			unique: true,
+		},
+		password:{
+			type:String,
+			unique:true
 		},
 		mobileNumber: {
 			type: String,
@@ -50,7 +55,7 @@ const userSchema = new mongoose.Schema(
 			],
 			required: true,
 		},
-
+		
 		otp: {
 			type: String,
 		},
