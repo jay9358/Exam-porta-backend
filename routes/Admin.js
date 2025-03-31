@@ -5,7 +5,7 @@ const questionSetController = require("../controllers/questionSetController");
 const examController = require("../controllers/examController");
 const userController = require("../controllers/userController");
 const authMiddleware = require("../middlewares/authMiddeware");
-const { CheckAdminFromFrontend, CheckStudentFromFrontend ,GetDashboard} = require("../controllers/Admin");
+const { CheckAdminFromFrontend, CheckStudentFromFrontend ,GetDashboard ,UpdatePassword,getPassword } = require("../controllers/Admin");
 const studentMiddleware = require("../middlewares/studentMiddleware");
 const { csvUpload } = require('../controllers/helperController');
 const multer = require('multer');
@@ -139,7 +139,18 @@ router.delete(
 	adminMiddleware,
 	userController.deleteAllUsers
 )
-
+router.post(
+	"/updatePassword",
+	authMiddleware,
+	adminMiddleware,
+	UpdatePassword 
+)
+router.get(
+	"/getPassword",
+	authMiddleware,
+	adminMiddleware,
+	getPassword 
+)
 
 // Error handling middleware for multer errors
 const handleMulterError = (error, req, res, next) => {

@@ -9,6 +9,8 @@ const Result = require("../models/Result");
 const mongoose = require("mongoose");
 const QuestionSet = require("../models/QuestionSet");
 const Question = require("../models/Question");
+const Password=require('../models/Password');
+const { Console } = require("console");
 // Use memory storage
 const storage = multer.memoryStorage();
 
@@ -261,3 +263,79 @@ exports.GetBatches = async (req, res) => {
 	return res.status(200).json({ batches });
 }
 
+exports.UpdatePassword = async (req, res) => {
+	try {
+		const { newPassword } = req.body;
+		const {userId}=req.body;
+		if (!newPassword) {
+			return res.status(400).json({
+				success: false,
+				message: "New password is required"
+			});
+		}
+
+		// Try to find existing password document
+		let password = await Password.findOne();
+		console.log(password);
+		if (!password) {  
+			// Create new password document if none exists
+			password = new Password({
+				defaultPassword: newPassword,
+				createdBy: userId // Assuming you have user info in req.user
+			});
+		} else {
+			// Update existing password using findOneAndUpdate
+			await Password.findOneAndUpdate(
+				{ _id: password._id },
+				{ 
+					defaultPassword: newPassword,
+					updatedAt: Date.now()
+				},
+				{ new: true }
+			);
+		}
+
+		await password.save();
+
+		return res.status(200).json({
+			success: true,
+			message: "Password updated successfully"
+		});
+	} catch (error) {
+		console.error("Error updating password:", error);
+		return res.status(500).json({
+			success: false,
+			message: "Error updating password",
+			error: error.message
+		});
+	}
+}
+
+exports.getPassword = async (req, res) => {
+    try {
+        console.log("REACHED");
+        // Find the default password document
+        const password = await Password.findOne();
+        
+        if (!password) {
+            return res.status(404).json({
+                success: false,
+                message: "No default password found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Default password retrieved successfully",
+            defaultPassword: password.defaultPassword
+        });
+
+    } catch (error) {
+        console.error("Error fetching default password:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching default password",
+            error: error.message
+        });
+    }
+};

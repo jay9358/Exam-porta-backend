@@ -13,6 +13,8 @@
   "description": "",
   "dependencies": {
     "@ruanitto/react-native-ntp-sync": "^1.1.2",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
@@ -28,9 +30,7 @@
     "twilio": "^5.3.3",
     "xlsx": "^0.18.5"
   },
-  
-    "engines": {
-      "node": "20"
-    }
-  
+  "engines": {
+    "node": "20"
+  }
 }
