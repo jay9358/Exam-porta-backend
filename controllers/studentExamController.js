@@ -162,8 +162,11 @@ exports.assignRandomQuestionSet = async (req, res) => {
 };
 
 exports.submitExam = async (req, res) => {
+	
 	try {
 		const { answers,questions } = req.body;
+		console.log("QUESTION"+questions);
+		console.log(answers);
 		const studentId = req.user._id;
 		const examId = req.params.examId;
 		console.log(answers, studentId, examId);
@@ -202,13 +205,14 @@ exports.submitExam = async (req, res) => {
 
 		// Calculate score
 		let score = 0;
+		const totalQuestions = questions.length; // Total number of questions
 		const questionsAnswered = question.map((question) => {
 			const selectedOptionId = answers[question._id.toString()]; // Get the selected option ID from the answers object
 			const selectedOption = question.options.find(
 				(option) => option._id.toString() === selectedOptionId
 			); // Find the matching option
 			const isCorrect = selectedOption && selectedOption.isCorrect;
-			if (isCorrect) score += 1;
+			if (isCorrect) score += 1; // Increment score for correct answers
 
 			return {
 				question: question._id,
@@ -216,7 +220,15 @@ exports.submitExam = async (req, res) => {
 				isCorrect,
 			};
 		});
-		const status = score >= question.length * 0.4 ? "Pass" : "Fail";
+
+		// Determine pass/fail status based on the score
+		const passingScore = totalQuestions * 0.4; // 40% of total questions
+		const status = score >= passingScore ? "Pass" : "Fail"; // Set status based on score
+
+		console.log("Total Questions:", totalQuestions);
+		console.log("Score:", score);
+		console.log("Passing Score:", passingScore);
+		console.log("Status:", status);
 
 		// Save result to database
 		const result = new Result({
@@ -225,9 +237,8 @@ exports.submitExam = async (req, res) => {
 			score,
 			questionsAnswered,
 			status,
-
-
 		});
+		console.log(result);
 		await result.save();
 
 		// Respond with success
@@ -252,9 +263,10 @@ exports.autoSubmitExam = async (req, res) => {
 	try {
 		const { studentId, examId } = req.session.examDetails;
 		const currentTime = Date.now();
+
 		if (currentTime > req.session.examDetails.endTime) {
 			// Auto-submit exam if time has expired
-			await this.submitExam(
+			const submissionResult = await submitExam(
 				{
 					body: {
 						studentId,
@@ -264,6 +276,9 @@ exports.autoSubmitExam = async (req, res) => {
 				},
 				res
 			);
+
+			// Optionally, you can handle the submission result here if needed
+			return submissionResult; // Return the result of the submission
 		} else {
 			res.status(400).json({ message: "Time has not expired yet" });
 		}

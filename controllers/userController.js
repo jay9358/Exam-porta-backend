@@ -81,43 +81,47 @@ exports.getUserById = async (req, res) => {
 };
 
 // Update a user's role and adjust leading schools based on city or state
-exports.updateRole = async (req, res) => {
-	const { userId } = req.params;
-	const { role, place } = req.body;
-	// Validate the role
-	const validRoles = ["StateManager", "CityManager", "Worker", "None"];
-	if (!validRoles.includes(role)) {
-		return res.status(400).json({ message: "Invalid role" });
-	}
+exports.update = async (req, res) => {
+	console.log("RACHED")
 	try {
-		// Find the user by ID
+		const { userId } = req.params;
+		const updates = req.body;
+
+		// Validate userId format
+		if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+			return res.status(400).json({ message: "Invalid user ID format" });
+		}
+
+		// Find and update the user
 		const user = await User.findById(userId);
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
 		}
-		// If the user is promoted/demoted, adjust their leading schools
-		let leadingSchools = [];
-		if (role === "CityManager") {
-			// Demoted from StateManager to CityManager: Keep only schools in the city
-			const citySchools = await School.find({ city: place });
-			leadingSchools = citySchools.map((school) => school._id);
-		} else if (role === "StateManager") {
-			// Promoted from CityManager to StateManager: Add all schools in the state
-			const stateSchools = await School.find({ state: place });
-			leadingSchools = stateSchools.map((school) => school._id);
-		}
-		// Update the user's role and leading schools
-		user.accountType = role;
-		user.leading = leadingSchools;
+
+		// Update allowed fields
+		if (updates.firstName) user.firstName = updates.firstName;
+		if (updates.lastName) user.lastName = updates.lastName;
+		if (updates.email) user.email = updates.email;
+		if (updates.mobileNumber) user.mobileNumber = updates.mobileNumber;
+		if (updates.accountType) user.accountType = updates.accountType;
+		if (updates.level) user.level = updates.level;
+		if (updates.batch) user.batch = updates.batch;
+		if (updates.image) user.image = updates.image;
+
 		// Save the updated user
 		await user.save();
+
 		res.status(200).json({
-			message: `Role updated to ${role} successfully`,
-			user,
+			message: "User updated successfully",
+			user
 		});
+
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: "Error updating role", error });
+		console.error("Error updating user:", error);
+		res.status(500).json({
+			message: "Error updating user",
+			error: error.message
+		});
 	}
 };
 // Remove a user's role (set role to default or "None")
@@ -460,25 +464,35 @@ exports.fetchSchools = async (req, res) => {
 	}
 };
 
-exports.deleteAllUsers = async (req, res) => {
+exports.deleteuser = async (req, res) => {
+	console.log("REacjedas")
 	try {
-		console.log("Reaching delete all students");
-		const result = await User.deleteMany({ accountType: "Student" });
+		const { userId } = req.params;
+
+		// Validate userId format
+		if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+			return res.status(400).json({ 
+				message: "Invalid user ID format" 
+			});
+		}
+
+		// Find and delete the specific user
+		const result = await User.findByIdAndDelete(userId);
 		
-		if (result.deletedCount > 0) {
+		if (result) {
 			res.status(200).json({ 
-				message: "All students deleted successfully",
-				deletedCount: result.deletedCount 
+				message: "User deleted successfully",
+				deletedUser: result
 			});
 		} else {
 			res.status(404).json({ 
-				message: "No students found to delete" 
+				message: "User not found" 
 			});
 		}
 	} catch (error) {
-		console.error("Error deleting students:", error);
+		console.error("Error deleting user:", error);
 		res.status(500).json({ 
-			message: "Error deleting students",
+			message: "Error deleting user",
 			error: error.message 
 		});
 	}

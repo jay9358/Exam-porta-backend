@@ -98,10 +98,10 @@ router.post(
 
 // Update a user's role
 router.put(
-	"/users/:userId/updateRole",
+	"/users/:userId/update",
 	authMiddleware,
 	adminMiddleware,
-	userController.updateRole
+	userController.update
 );
 
 // Remove a user's role
@@ -134,10 +134,10 @@ router.get(
 )
 
 router.delete(
-	"/users/deleteAll",
+	"/users/delete/:userId",
 	authMiddleware,
 	adminMiddleware,
-	userController.deleteAllUsers
+	userController.deleteuser
 )
 router.post(
 	"/updatePassword",

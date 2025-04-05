@@ -11,6 +11,7 @@ const QuestionSet = require("../models/QuestionSet");
 const Question = require("../models/Question");
 const Password=require('../models/Password');
 const { Console } = require("console");
+
 // Use memory storage
 const storage = multer.memoryStorage();
 
@@ -46,7 +47,8 @@ exports.registerStudents = async (req, res) => {
 		const generateRandomRollNo = () => {
 			return Math.floor(1000 + Math.random() * 9000).toString(); // Generates a number between 1000 and 9999
 		};
-
+		const SchoolSpec = await School.findOne({schoolId:schoolId});
+		console.log("SCHOOL SPEC:" + SchoolSpec)
 		// Ensure that each user object has the required fields
 		const userData = Users.map(user => ({
 			firstName: user.firstName,
@@ -54,9 +56,9 @@ exports.registerStudents = async (req, res) => {
 			email: user.email || null, // Optional, can be null
 			mobileNumber: user.mobileNumber || null, // Optional, can be null
 			accountType: user.accountType || "Student", // Use provided account type or default to "Student"
-			school: schoolId,
-			State: user.State || null, // Associate with the school
-			City: user.City || null, // Associate with the school
+			schoolId: schoolId,
+			State:  SchoolSpec.state || null, // Associate with the school
+			City: SchoolSpec.city || null, // Associate with the school
 			rollNo: user.rollNo || generateRandomRollNo(), // Use provided rollNo or generate a random one
 			level: user.level || null, // Optional, can be null
 			batch: user.batch || null, // Optional, can be null
