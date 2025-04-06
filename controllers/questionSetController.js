@@ -89,3 +89,23 @@ exports.getAllQuestionSets = async (req, res) => {
 		res.status(500).json({ message: "Error retrieving question sets", error });
 	}
 };
+exports.deleteQuestionSet = async (req, res) => {
+    const { questionSetId } = req.params;
+
+    try {
+        // Find and delete the question set
+        const questionSet = await QuestionSet.findByIdAndDelete(questionSetId);
+        
+        if (!questionSet) {
+            return res.status(404).json({ message: "Question set not found" });
+        }
+
+        // Optionally, remove the questions associated with this question set
+        await Question.deleteMany({ _id: { $in: questionSet.questions } });
+
+        res.status(200).json({ message: "Question set deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting question set:", error);
+        res.status(500).json({ message: "Error deleting question set", error: error.message });
+    }
+};

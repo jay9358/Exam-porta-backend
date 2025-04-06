@@ -245,4 +245,12 @@ router.post(
 	examController.ApproveExam
 )
 
+// Delete a question set by ID
+router.delete(
+    "/questionSets/:questionSetId",
+    authMiddleware,
+    adminMiddleware,
+    questionSetController.deleteQuestionSet
+);
+
 module.exports = router;
