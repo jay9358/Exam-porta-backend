@@ -285,3 +285,38 @@ exports.ApproveExam = async (req, res) => {
 		});
 	}
 };
+exports.handleReject = async (req, res) => {
+	const { id } = req.params;
+	const { userId } = req.body;
+	try {
+		const exam = await Exam.findById(id);
+		if (!exam) {
+			return res.status(404).json({ message: "Exam not found" });
+		}
+
+		const user = await User.findById(userId);
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		exam.ApprovalStatus = "Rejected";
+		exam.approvedBy = userId;
+		exam.approvedByName = `${user.firstName} ${user.lastName}`;
+		
+		await exam.save();
+
+		// Populate the approvedBy field when sending response
+		await exam.populate('approvedBy', 'firstName lastName');
+
+		res.status(200).json({ 
+			message: "Exam rejected successfully", 
+			exam 
+		});
+	} catch (error) {
+		console.error("Error rejecting exam:", error);
+		res.status(500).json({ 
+			message: "Error rejecting exam", 
+			error: error.message 
+		});
+	}
+};

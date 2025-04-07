@@ -57,6 +57,12 @@ router.post(
     adminMiddleware, 
     examController.createExam
 );
+router.post(
+	"/exams/:id/reject",
+	authMiddleware,
+	adminMiddleware,
+	examController.handleReject
+)
 
 // Update an exam
 router.put(
