@@ -12,6 +12,7 @@ const multer = require('multer');
 const { GetPerformanceReports, GetAllResults, GetWeightage, GetBatches } = require("../controllers/Admin");
 const stateMiddleware = require("../middlewares/stateManagerMiddleware");
 const cityMiddleware = require("../middlewares/cityManagerMiddleware");
+const User=require("../models/User");
 // Create a new question set
 router.post(
 	"/questionSets",
@@ -257,6 +258,25 @@ router.delete(
     authMiddleware,
     adminMiddleware,
     questionSetController.deleteQuestionSet
+);
+router.get(
+	"/users/batch/:batchId",
+	authMiddleware,
+	adminMiddleware,
+	async (req, res) => {
+		console.log("REACHEDDD")
+		const { batchId } = req.params;
+		try {
+			const users = await User.find({ batch: batchId });
+			if (!users.length) {
+				return res.status(404).json({ message: "No users found for this batch" });
+			}
+			res.status(200).json({ message: "Users retrieved successfully", users });
+		} catch (error) {
+			console.error("Error fetching users by batch:", error);
+			res.status(500).json({ message: "Error fetching users by batch", error: error.message });
+		}
+	}
 );
 
 module.exports = router;
