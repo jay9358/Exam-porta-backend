@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			trim: true,
 			unique: true,
+			required: function() {
+				return this.accountType === "Student";
+			},
 		},
 		password:{
 			type:String,

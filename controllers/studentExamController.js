@@ -222,7 +222,7 @@ exports.submitExam = async (req, res) => {
 		});
 
 		// Determine pass/fail status based on the score
-		const passingScore = totalQuestions * 0.4; // 40% of total questions
+		const passingScore = totalQuestions * 0.5; // 40% of total questions
 		const status = score >= passingScore ? "Pass" : "Fail"; // Set status based on score
 
 		console.log("Total Questions:", totalQuestions);
@@ -534,7 +534,8 @@ module.exports.sendExamResult = async (req, res) => {
 			= result.score;
 			const attem = questionsAttempted.length;
 			const resultData = {
-				student: student.email,
+				student: `${student.firstName} ${student.lastName} `,
+				status:result.status,
 				exam: exam.title,
 				score,
 				questionsAttempted: attem,

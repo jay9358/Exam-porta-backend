@@ -24,7 +24,7 @@ exports.registerStudents = async (req, res) => {
 
 	// Check if the required fields are present in the request body
 	const { schoolId, Users } = req.body; // Expecting Users to be an array of user objects
-
+	console.log(Users);
 	// Validate schoolId and Users
 	if(Users.accountType=="Student" || Users.accountType=="Worker"){
 	if (!schoolId || typeof schoolId !== 'string' || !Array.isArray(Users) || Users.length === 0) {
@@ -44,9 +44,7 @@ exports.registerStudents = async (req, res) => {
 
 		// Function to generate a random 4-digit number
 
-		const generateRandomRollNo = () => {
-			return Math.floor(1000 + Math.random() * 9000).toString(); // Generates a number between 1000 and 9999
-		};
+
 		const SchoolSpec = await School.findOne({schoolId:schoolId});
 		console.log("SCHOOL SPEC:" + SchoolSpec)
 		// Ensure that each user object has the required fields
@@ -59,7 +57,7 @@ exports.registerStudents = async (req, res) => {
 			schoolId: schoolId,
 			State:  SchoolSpec.state || null, // Associate with the school
 			City: SchoolSpec.city || null, // Associate with the school
-			rollNo: user.rollNo || generateRandomRollNo(), // Use provided rollNo or generate a random one
+			rollNo: user.rollNo, // Use provided rollNo or generate a random one
 			level: user.level || null, // Optional, can be null
 			batch: user.batch || null, // Optional, can be null
 			image: user.image || null, // Optional, can be null

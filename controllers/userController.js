@@ -82,8 +82,9 @@ exports.getUserById = async (req, res) => {
 
 // Update a user's role and adjust leading schools based on city or state
 exports.update = async (req, res) => {
-	console.log("RACHED")
+	
 	try {
+		console.log("RACHED")
 		const { userId } = req.params;
 		const updates = req.body;
 
@@ -98,7 +99,11 @@ exports.update = async (req, res) => {
 			return res.status(404).json({ message: "User not found" });
 		}
 
+
+
 		// Update allowed fields
+		console.log(updates.rollNo);
+		if(updates.rollNo) user.rollNo=updates.rollNo;
 		if (updates.firstName) user.firstName = updates.firstName;
 		if (updates.lastName) user.lastName = updates.lastName;
 		if (updates.email) user.email = updates.email;
