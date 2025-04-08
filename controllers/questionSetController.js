@@ -6,7 +6,10 @@ exports.createQuestionSet = async (req, res) => {
 	console.log(req.body);
 	
 	const { setName , type} = req.body;
-
+	const existingSet = await QuestionSet.findOne({ setName });
+	if (existingSet) {
+		return res.status(400).json({ message: "A question set with this name already exists." });
+	}
 
 	try {
 		const questionSet = new QuestionSet({
